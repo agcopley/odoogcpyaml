@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+
+    odoo12:
+        container_name: odoo12
+        image: gcr.io/tutorial-ms-gcp/yellowoffice:latest
+        user: 104:106
+        ports:
+            - "8069:8069"
+        networks:
+            odoo_net:
+                ipv4_address: 172.18.0.3    
+            
+    cloudsql:
+        container_name: cloudsql
+        image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.0.0
+        volumes:
+            - ./cloud-sql-proxy-key.json:/path/to/service-account-key.json
+        ports:
+            - "5433:5432"
+        networks:
+            odoo_net:
+                ipv4_address: 172.18.0.4
+        command: --address 0.0.0.0 --port 5432 --credentials-file /path/to/service-account-key.json tutorial-ms-gcp:southamerica-west1:yellowoffice --private-ip            
+
+networks:
+    odoo_net:
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.18.0.0/29  
